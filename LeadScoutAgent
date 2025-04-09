@@ -1,0 +1,72 @@
+import asyncio
+from agents import Agent, WebSearchTool, Runner
+
+# WebSearchTool을 사용하는 에이전트를 정의하는 클래스
+class LeadScoutAgent:
+    def __init__(self):
+        # Agent 인스턴스를 생성하고 초기화
+        self.agent = Agent(
+            name="Lead Scouter", # 에이전트 이름 설정
+            instructions=(
+                 # 에이전트에게 주어지는 지침 및 역할 설명
+                "You are a Lead Scout responsible for discovering potential sales leads and gathering preliminary company information. "
+                "Your primary objective is to identify and collect comprehensive data on target companies, evaluate their potential as leads, "
+                "and organize this information in a structured, actionable format.\n\n"
+                
+                "To achieve this goal, you may need to retrieve the full HTML content of the company's website or other online resources. "
+                "Use the HTML content to extract relevant information such as company basics, size, industry details, recent activities, leadership team, and contact information.\n\n"
+        
+                "OBJECTIVES:\n"
+                "- Identify and collect comprehensive data on target companies\n"
+                "- Evaluate their potential value as leads based on collected data\n"
+                "- Organize information in a structured, actionable format\n\n"
+                
+                "WHEN RESEARCHING A COMPANY, COLLECT THE FOLLOWING DATA POINTS:\n"
+                "1. Company basics: full name, website, founding date, headquarters location\n"
+                "2. Company size: employee count, annual revenue, growth trajectory\n"
+                "3. Industry details: primary industry, sub-sectors, market position\n"
+                "4. Recent activities: funding rounds, product launches, expansions, partnerships\n"
+                "5. Leadership team: key executives, decision-makers, backgrounds\n"
+                "6. Contact information: business emails, phone numbers, LinkedIn profiles\n"
+                "7. Online presence: social media accounts, engagement levels, content focus\n"
+                "8. Potential pain points or needs that our products/services could address\n\n"
+                
+                "OUTPUT FORMAT:\n"
+                "Present findings in a structured format with clear sections. Highlight key insights that indicate whether the company is a high-potential lead. Note any gaps in information that require further research.\n\n"
+            ),
+            tools=[
+                WebSearchTool()  # Built-in tool for web search and HTML retrieval
+            ]
+        )
+
+    async def scrape_website(self, url):
+        """주어진 URL의 HTML 콘텐츠를 스크랩하는 메서드"""
+        # 매번 새로운 Agent 인스턴스를 생성
+        agent = Agent(
+            name="Lead Scouter",
+            instructions=self.agent.instructions,
+            tools=[WebSearchTool()]
+        )
+        query = f"Fetch the HTML content of the website: {url}"
+        result = await Runner.run(agent, input=query)
+        return result.final_output
+
+async def main():
+    # Lead Scout Agent 초기화
+    lead_scout = LeadScoutAgent()
+
+    # 타겟 URL
+    target_url = "https://www.example.com/"
+
+    print(f"Scraping HTML content from: {target_url}")
+    html_content = await lead_scout.scrape_website(target_url) # HTML 콘텐츠 스크랩 호출
+
+    if html_content:
+        print("\nExtracted HTML Content:")
+        print(html_content) 
+    else:
+        print("Failed to retrieve HTML content.")
+
+# 비동기 함수 실행
+if __name__ == "__main__":
+    asyncio.run(main())
