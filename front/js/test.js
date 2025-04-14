@@ -1,8 +1,34 @@
-require("dotenv").config();
+// 브라우저 환경에서는 require 불가
+// require("dotenv").config(); -> node 환경 테스트
+
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const TAVILY_API_KEY = process.env.TAVILY_API_KEY;
 
-// 1. 타빌리로 웹 검색
+const form = document.getElementById("searchForm");
+const queryInput = document.getElementById("queryInput");
+const resultSection = document.getElementById("resultSection");
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const query = queryInput.value.trim();
+  if (!query) return;
+
+  resultSection.innerHTML = `<p class="loading">검색 중입니다. 잠시만 기다려 주세요.</p>`;
+
+  try {
+    const searchResult = await searchTavily(query);
+    if (searchResult) {
+      const summarized = await summarizeWithGpt4o(searchResult);
+      resultSection.innerHTML = `<p>${summarized}</p>`;
+    } else {
+      resultSection.innerHTML = `<p>검색 결과가 없습니다.</p>`;
+    }
+  } catch (error) {
+    resultSection.innerHTML = `<p>오류가 발생했습니다: ${error.message}</p>`;
+  }
+});
+
+// 타빌리로 웹 검색
 async function searchTavily(query) {
   try {
     const response = await fetch("https://api.tavily.com/search", {
@@ -27,6 +53,7 @@ async function searchTavily(query) {
 
 // 2. gpt 요약 요청하기
 async function summarizeWithGpt4o(content) {
+  const limitedResult = content.length > 1000 ? content.slice(0, 1000) : content;
   // Tavily content 매개변수로 받아서 요약
   try {
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -40,11 +67,12 @@ async function summarizeWithGpt4o(content) {
         messages: [
           {
             role: "system",
-            content: "You are a helpful assistant specialized in providing company information."
+            content:
+              "You are a helpful assistant specialized in providing company information. Please always answer in Korean."
           },
           {
             role: "user",
-            content: `Summarize the following information about the company:\n\n${content}`
+            content: `Summarize the following information about the company:\n\n${limitedResult}`
           }
         ]
       })
@@ -57,17 +85,3 @@ async function summarizeWithGpt4o(content) {
     console.error("gpt 요약 에러 발생:", error);
   }
 }
-
-// 사용 예시
-async function run() {
-  const query = "구글 회사에 대해 알려줘";
-
-  const searchResult = await searchTavily(query);
-  if (searchResult) {
-    await summarizeWithGpt4o(searchResult);
-  } else {
-    console.error("검색 결과가 없습니다.");
-  }
-}
-
-run();
