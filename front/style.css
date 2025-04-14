@@ -1,0 +1,69 @@
+@charset "utf-8";
+
+:root {
+  --color-background: #000000;
+  --color-text: #ffffff;
+  --color-primary: #6a31f6;
+  --color-section-bg: #1f1f1f;
+  --color-gray: #cccccc;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+  min-height: 100vh;
+}
+
+header .title {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+#searchForm {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 2rem;
+}
+
+#searchForm > #queryInput[type="text"] {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-gray);
+  border-radius: 8px;
+}
+
+button {
+  padding: 0.75rem 1.5rem;
+  color: var(--color-text);
+  background-color: var(--color-primary);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  font-weight: bold;
+}
+
+button:hover {
+  background-color: #643fc2;
+}
+
+main {
+  width: 100%;
+  max-width: 600px;
+}
+
+#resultSection {
+  background-color: var(--color-section-bg);
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+.loading {
+  font-style: italic;
+  color: #555555;
+}
