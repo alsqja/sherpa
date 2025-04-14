@@ -1,5 +1,5 @@
 // 브라우저 환경에서는 require 불가
-// require("dotenv").config(); -> node 환경 테스트
+require("dotenv").config();
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const TAVILY_API_KEY = process.env.TAVILY_API_KEY;
@@ -67,8 +67,7 @@ async function summarizeWithGpt4o(content) {
         messages: [
           {
             role: "system",
-            content:
-              "You are a helpful assistant specialized in providing company information. Please always answer in Korean."
+            content: "You are a helpful assistant specialized in providing company information. "
           },
           {
             role: "user",
